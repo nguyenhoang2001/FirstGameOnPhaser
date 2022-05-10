@@ -40,9 +40,13 @@ export class BootScene extends Phaser.Scene {
       );
   
       // load our package
-      this.load.image('background', './assets/images/bg.png');
-      this.load.image('birdWingUp', './assets/images/birdWingUp.png');
-      this.load.image('birdWingDown', './assets/images/birdWingDown.png');
+      this.load.image('background', './assets/images/background.png');
+      this.load.image('birdUp', './assets/images/birdUp.png');
+      this.load.image('birdMid', './assets/images/birdMid.png');
+      this.load.image('birdDown', './assets/images/birdDown.png');
+      this.load.image('buttonPlay', './assets/images/buttonPlay.png');
+      this.load.image('gameTitle', './assets/images/gameTitle.png');
+      this.load.image('ground','./assets/images/ground.png');
       this.load.spritesheet('pipe','./assets/sprites/pipe.png',{"frameWidth": 20,"frameHeight": 20});
     }
   

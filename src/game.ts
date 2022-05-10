@@ -1,22 +1,20 @@
 import Phaser from "phaser";
+import { BirdScene } from "./scenes/BirdScene";
 import { BootScene } from "./scenes/BootScene";
+import { GameScene } from "./scenes/GameScene";
 import { StartScene } from "./scenes/StartScene";
 
 const config: Phaser.Types.Core.GameConfig = {
-    width: 100,
+    width: 320,
     height: 600,
     title: 'Flappy Bird',
     parent: 'game',
     type: Phaser.AUTO,
-    scale: {
-        mode: Phaser.Scale.RESIZE,
-        autoCenter: Phaser.Scale.CENTER_BOTH
-    },
     input: {
         keyboard: true,
         mouse:true,
     },
-    scene: [BootScene,StartScene],
+    scene: [BootScene,StartScene,GameScene,BirdScene],
     physics: {
         default: 'arcade',
         arcade: {
@@ -26,5 +24,5 @@ const config: Phaser.Types.Core.GameConfig = {
     backgroundColor: '#98d687',
     render: { pixelArt: true, antialias: false }
 }
-console.log('hello');
+
 const game = new Phaser.Game(config);
