@@ -14,6 +14,7 @@ export class GameScene extends Phaser.Scene {
     private score!: number;
     private endSound!: Phaser.Sound.BaseSound;
     private flapSound!:Phaser.Sound.BaseSound;
+    private jumpKey!: Phaser.Input.Keyboard.Key;
 
 
     constructor() {
@@ -30,29 +31,38 @@ export class GameScene extends Phaser.Scene {
     }
 
     create(): void {
+        // Background
         this.background = this.add.tileSprite(0, 0, 144, 257, 'background').setOrigin(0);
         this.background.setScale(2.5);
         this.background.width += 10000;
 
-        this.cameras.main.setBounds(0,0,this.background.displayWidth + this.background.width,this.background.displayHeight);
-
+        // Ground
         this.ground = this.add.tileSprite(0,0,168,55,'ground').setOrigin(0);
         this.ground.setScale(2);
         this.ground.width += 10000;
         this.ground.displayWidth += 24;
         this.ground.y = 550 + 2;
 
+        // Bird
         this.bird = new Bird({
             scene:this,
             x:50,
             y:50,
             texture:'birdUp'
         });
+        this.physics.world.enable(this.bird);
+        this.bird.setBody();
+        this.add.existing(this.bird);
+
+        // Camera main
+        this.cameras.main.setBounds(0,0,this.background.displayWidth + this.background.width,this.background.displayHeight);
         this.cameras.main.startFollow(this.bird,true);
        
+        // Collision between ground and bird
         this.physics.add.existing(this.ground,true);
         this.physics.add.collider(this.bird, this.ground,()=>{this.birdDead()});
 
+        // Pipe
         this.positionPipe = 400;
         this.positionOfPipes = [];
         this.spaceBetweenPipes = 100;
@@ -60,10 +70,15 @@ export class GameScene extends Phaser.Scene {
         this.pipes = this.add.group();
         this.addNewRowOfPipes();
 
+        // Score
         this.score = 0;
 
+        // Sound
         this.endSound = this.sound.add('crowdSad',{loop:false,volume:0.5});
         this.flapSound = this.sound.add('flapSound',{loop:false,volume:0.5});
+
+        // Input
+        this.jumpKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     }
 
     update(time: number, delta: number): void {
@@ -73,7 +88,8 @@ export class GameScene extends Phaser.Scene {
                 this.addNewRowOfPipes();
                 this.timerGeneratePipe = 0;
             }
-            this.bird.update(this.flapSound);
+            this.inputHandling();
+            this.bird.update();
             this.physics.overlap(
                 this.bird,
                 this.pipes,
@@ -86,6 +102,13 @@ export class GameScene extends Phaser.Scene {
             this.countScore();
         } else {
             this.scene.start('EndScene',{score:this.score});
+        }
+    }
+
+    private inputHandling(): void {
+        if(this.jumpKey.isDown) {
+            this.flapSound.play();
+            this.bird.setFlapping(true);
         }
     }
 
@@ -122,7 +145,6 @@ export class GameScene extends Phaser.Scene {
     private countScore() {
         for(let i = 0; i < this.positionOfPipes.length; i++) {
             if(this.bird.x > this.positionOfPipes[i] + 60) {
-                //this.dingSound.play();
                 this.score += 1;
                 this.positionOfPipes.shift();
                 i -= 1;
@@ -135,14 +157,10 @@ export class GameScene extends Phaser.Scene {
     }
 
     private addPipe(x: number, y: number, frame: number): void {
-        this.pipes.add(
-          new Pipe({
-            scene: this,
-            x: x,
-            y: y,
-            frame: frame,
-            texture: 'pipe'
-          })
-        );
+        let newPipe = new Pipe({scene: this,x: x,y: y,frame: frame,texture: 'pipe'});
+        this.physics.world.enable(newPipe);
+        newPipe.setBody();
+        this.add.existing(newPipe);
+        this.pipes.add(newPipe);
     }
 }
