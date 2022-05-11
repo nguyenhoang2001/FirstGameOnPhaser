@@ -12,6 +12,8 @@ export class GameScene extends Phaser.Scene {
     private spaceBetweenPipes!: number;
     private positionOfPipes!: number[];
     private score!: number;
+    private endSound!: Phaser.Sound.BaseSound;
+    private flapSound!:Phaser.Sound.BaseSound;
 
 
     constructor() {
@@ -60,6 +62,8 @@ export class GameScene extends Phaser.Scene {
 
         this.score = 0;
 
+        this.endSound = this.sound.add('crowdSad',{loop:false,volume:0.5});
+        this.flapSound = this.sound.add('flapSound',{loop:false,volume:0.5});
     }
 
     update(time: number, delta: number): void {
@@ -69,7 +73,7 @@ export class GameScene extends Phaser.Scene {
                 this.addNewRowOfPipes();
                 this.timerGeneratePipe = 0;
             }
-            this.bird.update();
+            this.bird.update(this.flapSound);
             this.physics.overlap(
                 this.bird,
                 this.pipes,
@@ -86,6 +90,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     private birdDead(): void {
+        this.endSound.play();
         this.bird.setDead(true);
         this.bird.body.stop();
         this.cameras.main.stopFollow();
@@ -117,6 +122,7 @@ export class GameScene extends Phaser.Scene {
     private countScore() {
         for(let i = 0; i < this.positionOfPipes.length; i++) {
             if(this.bird.x > this.positionOfPipes[i] + 60) {
+                //this.dingSound.play();
                 this.score += 1;
                 this.positionOfPipes.shift();
                 i -= 1;

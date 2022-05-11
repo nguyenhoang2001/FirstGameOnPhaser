@@ -48,6 +48,12 @@ export class BootScene extends Phaser.Scene {
       this.load.image('gameTitle', './assets/images/gameTitle.png');
       this.load.image('ground','./assets/images/ground.png');
       this.load.spritesheet('pipe','./assets/sprites/pipe.png',{"frameWidth": 20,"frameHeight": 20});
+      this.load.audio('backgroundMusic','./assets/music/backgroundMusic.mp3');
+      this.load.audio('ding','./assets/sfx/dingSound.mp3');
+      this.load.audio('flapSound','./assets/sfx/flapSound.mp3');
+      this.load.audio('hitButton','./assets/sfx/hitButtonSound.mp3');
+      this.load.audio('crowdSad','./assets/sfx/crowdSad.mp3');
+      this.load.audio('clapping','./assets/sfx/clappingSound.mp3');
     }
   
     update(): void {

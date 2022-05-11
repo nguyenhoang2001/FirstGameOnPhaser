@@ -46,7 +46,7 @@ export class Bird extends Phaser.GameObjects.Sprite {
         this.isDead = dead;
     }
 
-    public update(): void {
+    public update(flapSound:Phaser.Sound.BaseSound): void {
         // handle angle change
         if (this.angle < 30) {
           this.angle += 2;
@@ -54,6 +54,7 @@ export class Bird extends Phaser.GameObjects.Sprite {
     
         // handle input
         if (this.jumpKey.isDown && !this.isFlapping) {
+          flapSound.play();
           this.isFlapping = true;
           this.body.setVelocityY(-400);
           this.body.setVelocityX(180);
