@@ -4,7 +4,7 @@ export class StartScene extends Phaser.Scene {
     private background!: Phaser.GameObjects.TileSprite;
     private buttonPlay!: Phaser.GameObjects.Image;
     private gameTitle!: Phaser.GameObjects.Image;
-    private backgroundMusic!: Phaser.Sound.BaseSound;
+
     constructor() {
         super({
             key: 'StartScene'
@@ -21,9 +21,8 @@ export class StartScene extends Phaser.Scene {
         this.buttonPlay.y = this.cameras.main.height/2;
         this.gameTitle.x = this.cameras.main.width/2;
         this.gameTitle.y = this.cameras.main.height/2 - 100;
-        this.backgroundMusic = this.sound.add('backgroundMusic',{loop:true,volume:0.5});
+
         let hitButton = this.sound.add('hitButton',{loop:false,volume:0.5});
-        this.backgroundMusic.play();
         this.buttonPlay.setInteractive().on(Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN,() => {
             hitButton.play();
             this.scene.start('GameScene');

@@ -1,16 +1,13 @@
 import Phaser from "phaser";
 import { Bird } from "../objects/Bird";
-import { Pipe } from "../objects/Pipe";
+import { PipesManager } from "../objects/PipesManager";
 
 export class GameScene extends Phaser.Scene {
     private background!: Phaser.GameObjects.TileSprite;
-    private pipes!: Phaser.GameObjects.Group;
+    private pipesManager!: PipesManager;
     private ground!: Phaser.GameObjects.TileSprite;
     private bird!: Bird;
     private timerGeneratePipe!: number;
-    private positionPipe!: number;
-    private spaceBetweenPipes!: number;
-    private positionOfPipes!: number[];
     private score!: number;
     private endSound!: Phaser.Sound.BaseSound;
     private flapSound!:Phaser.Sound.BaseSound;
@@ -21,13 +18,6 @@ export class GameScene extends Phaser.Scene {
         super({
             key: 'GameScene'
         });
-        this.timerGeneratePipe = 0;
-        this.positionOfPipes = [];
-        this.score = 0;
-    }
-
-    init(): void {
-        this.registry.set('score', -1);
     }
 
     create(): void {
@@ -62,13 +52,12 @@ export class GameScene extends Phaser.Scene {
         this.physics.add.existing(this.ground,true);
         this.physics.add.collider(this.bird, this.ground,()=>{this.birdDead()});
 
-        // Pipe
-        this.positionPipe = 400;
-        this.positionOfPipes = [];
-        this.spaceBetweenPipes = 100;
+        // PipesManager
         this.timerGeneratePipe = 0;
-        this.pipes = this.add.group();
-        this.addNewRowOfPipes();
+        this.pipesManager = new PipesManager(this);
+        this.pipesManager.pipes = this.add.group();
+        this.pipesManager.addNewRowOfPipes();
+        this.physics.add.collider(this.bird,this.pipesManager.pipes,()=>{this.birdDead()});
 
         // Score
         this.score = 0;
@@ -85,20 +74,11 @@ export class GameScene extends Phaser.Scene {
         if(!this.bird.getDead()) {
             this.timerGeneratePipe += delta;
             if(this.timerGeneratePipe >= 500) {
-                this.addNewRowOfPipes();
+                this.pipesManager.addNewRowOfPipes();
                 this.timerGeneratePipe = 0;
             }
             this.inputHandling();
             this.bird.update();
-            this.physics.overlap(
-                this.bird,
-                this.pipes,
-                () => {
-                    this.birdDead();
-                },
-                ()=>{},
-                this
-            );
             this.countScore();
         } else {
             this.scene.start('EndScene',{score:this.score});
@@ -119,34 +99,11 @@ export class GameScene extends Phaser.Scene {
         this.cameras.main.stopFollow();
     }
 
-    private addNewRowOfPipes(): void {
-        this.positionOfPipes.push(this.positionPipe);
-        // update the score
-        this.registry.values.score += 1;
-    
-        // randomly pick a number between 1 and 5
-        let hole = Math.floor(Math.random() * 5) + 1;
-
-        // add 6 pipes with one big hole at position hole and hole + 1
-        for (let i = 0; i < 10; i++) {
-          if (i !== hole && i !== hole + 1 && i !== hole + 2) {
-            if (i === hole - 1) {
-              this.addPipe(this.positionPipe, i * 55, 0);
-            } else if (i === hole + 3) {
-              this.addPipe(this.positionPipe, i * 55, 1);
-            } else {
-              this.addPipe(this.positionPipe, i * 55, 2);
-            }
-          }
-        }
-        this.positionPipe += 60 + this.spaceBetweenPipes;
-    }
-
     private countScore() {
-        for(let i = 0; i < this.positionOfPipes.length; i++) {
-            if(this.bird.x > this.positionOfPipes[i] + 60) {
+        for(let i = 0; i < this.pipesManager.positionOfPipes.length; i++) {
+            if(this.bird.x > this.pipesManager.positionOfPipes[i] + 60) {
                 this.score += 1;
-                this.positionOfPipes.shift();
+                this.pipesManager.positionOfPipes.shift();
                 i -= 1;
                 console.log(this.score);
             }else {
@@ -154,13 +111,5 @@ export class GameScene extends Phaser.Scene {
                     break;
             }
         }
-    }
-
-    private addPipe(x: number, y: number, frame: number): void {
-        let newPipe = new Pipe({scene: this,x: x,y: y,frame: frame,texture: 'pipe'});
-        this.physics.world.enable(newPipe);
-        newPipe.setBody();
-        this.add.existing(newPipe);
-        this.pipes.add(newPipe);
     }
 }

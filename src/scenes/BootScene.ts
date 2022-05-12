@@ -1,7 +1,8 @@
 export class BootScene extends Phaser.Scene {
     private loadingBar!: Phaser.GameObjects.Graphics;
     private progressBar!: Phaser.GameObjects.Graphics;
-  
+    private backgroundMusic!: Phaser.Sound.BaseSound;
+
     constructor() {
       super({
         key: 'BootScene'
@@ -33,6 +34,7 @@ export class BootScene extends Phaser.Scene {
       this.load.on(
         'complete',
          () => {
+          this.backgroundMusic = this.sound.add('backgroundMusic',{loop:true,volume:0.5});
           this.progressBar.destroy();
           this.loadingBar.destroy();
         },
@@ -54,9 +56,11 @@ export class BootScene extends Phaser.Scene {
       this.load.audio('hitButton','./assets/sfx/hitButtonSound.mp3');
       this.load.audio('crowdSad','./assets/sfx/crowdSad.mp3');
       this.load.audio('clapping','./assets/sfx/clappingSound.mp3');
+
     }
   
     update(): void {
+      this.backgroundMusic.play();
       this.scene.start('StartScene');
     }
   
